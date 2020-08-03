@@ -1,16 +1,20 @@
+import json
 import os
 import random
+
+from dotenv import load_dotenv
 import discord
 
-TOKEN = "Votre token discord"
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
 
 client = discord.Client()
 
 def create_insult():
-    first_row = ["Espèce de ", "Sale ", "Enfoiré de ", "Batard de ", " Vil "]
-    second_row = ["nazi ", "con ", "débile ", "gauchiste ", "droitard ", "journalope "]
-    third_row = ["de merde", "à la con", "trépané", "lobotomisé", "à poils longs"]
-    return random.choice(first_row) + random.choice(second_row) + random.choice(third_row)
+    
+    data = json.load(open('insultes.json', "rb"), encoding="utf-8")
+
+    return random.choice(data['first_row']) + random.choice(data['second_row']) + random.choice(data['third_row'])
 
 @client.event
 async def on_message(message):
