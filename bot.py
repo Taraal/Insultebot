@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import discord
 
 load_dotenv()
+
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
@@ -15,7 +16,7 @@ client = discord.Client(intents=intents)
 
 def create_insult():
     
-    data = json.load(open('insultes.json', "rb"), encoding="utf-8")
+    data = json.load(open('insultes.json', "rb"))
 
     return random.choice(data['first_row']) + random.choice(data['second_row']) + random.choice(data['third_row'])
 
@@ -27,10 +28,15 @@ async def on_message(message):
 
     if message.content.startswith('!insulte'):
         if len(message.mentions) > 0:
-            for user in message.mentions:
-                insulte = create_insult()
-                msg = f'<@{user.id}> {insulte}'.format(message)
-                await message.channel.send(msg)
+            try: 
+                for user in message.mentions:
+                    insulte = create_insult()
+
+                    msg = f'<@{user.id}> {insulte}'.format(message)
+
+                    await message.channel.send(msg)
+            except Exception:
+                print(Exception)
 
 @client.event
 async def on_ready():
