@@ -14,7 +14,10 @@ class Bot(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-    
+
+    async def setup_hook(self):
+        # This copies the global commands over to your guild.
+        await self.tree.sync()    
 
 
 intents = discord.Intents.default()
@@ -38,7 +41,8 @@ async def insulte(interaction: discord.Interaction, member : discord.Member):
 
         msg = f'{member.mention} {insulte}'.format()
 
-        await interaction.channel.send(msg)
+        await interaction.response.send_message(msg)
+
     except Exception as e:
         print(e)
 
