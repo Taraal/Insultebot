@@ -4,43 +4,43 @@ import random
 
 from dotenv import load_dotenv
 import discord
+from discord import app_commands
 
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-intents = discord.Intents.default()
-intents.message_content = True
+class Bot(discord.Client):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+    
 
-client = discord.Client(intents=intents)
+
+intents = discord.Intents.default()
+client = Bot(intents=intents)
 
 def create_insult():
-    
     data = json.load(open('insultes.json', "rb"))
-
     return random.choice(data['first_row']) + random.choice(data['second_row']) + random.choice(data['third_row'])
 
 @client.event
-async def on_message(message):
-
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('!insulte'):
-        if len(message.mentions) > 0:
-            try: 
-                for user in message.mentions:
-                    insulte = create_insult()
-
-                    msg = f'<@{user.id}> {insulte}'.format(message)
-
-                    await message.channel.send(msg)
-            except Exception:
-                print(Exception)
-
-@client.event
 async def on_ready():
-    print('Connecté')
+    print(f'Logged in as {client.user} (ID: {client.user.id})')
     print('------')
+
+
+@client.tree.command()
+async def insulte(interaction: discord.Interaction, member : discord.Member):
+
+    try:
+        insulte = create_insult()
+
+        msg = f'{member.mention} {insulte}'.format()
+
+        await interaction.channel.send(msg)
+    except Exception as e:
+        print(e)
+
 
 client.run(TOKEN)
